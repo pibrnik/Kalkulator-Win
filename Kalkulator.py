@@ -85,7 +85,7 @@ class Window(Frame):
         #Definiraj spremembe zaslona pri pisavah
         def zaslon_minimize():
             self.izpis.config(height=9, width=55, font=najmanjsa_pisava)
-        def zaslon_srenja_velikost():
+        def zaslon_srednji():
             self.izpis.config(height=3, width=30, font=mala_pisava)
         def zaslon_maximize():
             self.izpis.config(height=2, width=12, font=velika_pisava)
@@ -180,30 +180,37 @@ class Window(Frame):
         def fun():
             self.funi = self.funi + 1
             if self.funi == 1:
-                zaslon = self.izpis.get("1.0", END)
+                zaslon=self.izpis.get("1.0",END)
+
+
+                self.prej,b = zaslon.split("\n")
+                print(self.prej)
                 l = len(zaslon) - 1
                 if l !=0:
                     del self.disk[-l:]
-                    del self.postopek[-l:]
+                    #del self.postopek[-l:]
                     postopek_trace()
-                pocisti_zaslon()
+                pocisti()
                 trenutno = ("".join(str(x) for x in self.disk))
                 print("Trenutno je", trenutno)
                 self.zgodovina = trenutno
                 del self.disk[:]
                 fun_label.configure(fg="black")
-                fun_button.configure( text="Onemogoci funkcije")
+                fun_button.configure(text="Onemogoči funkcije")
                 fun2_button.config(state="normal")
+                insert_zaslon(self.prej)
                 opdis()
                 funnrm()
+
+
 
             else:
                 self.funi = 0
 
                 fun_label.configure(fg="#cfcfcf")
-                fun_button.configure( text="Omogoci funkcije")
+                fun_button.configure(text="Omogoči funkcije")
                 fun2_button.config(state="disabled")
-                self.zgodovina=""
+                self.prej=""
                 opnrm()
                 fundis()
 
@@ -220,6 +227,7 @@ class Window(Frame):
                 gumb_cot.configure(text="acot")
                 gumb_fakulteta.configure(text="Sn")
                 gumb_ln.configure(text="e")
+                gumb_log.configure(text="DMS")
                 fun_label.config(text="2ndF")
                 fun_button.config(state="disabled")
             else:
@@ -227,12 +235,18 @@ class Window(Frame):
                 gumb_sin.configure(text="sin")
                 gumb_tan.configure(text="tan")
                 gumb_cot.configure(text="cot")
-                gumb_fakulteta.configure(text="!")
+                gumb_fakulteta.configure(text="n!")
                 gumb_ln.configure(text="ln")
+                gumb_log.configure(text="log")
                 fun_label.config(text="fun")
                 fun_button.config(state="normal")
                 self.fun2i = 0
 
+        def postopek_pobrisi_trenutno():
+            a=self.izpis.get("1.0", END)
+            pocisti()
+            l= len(a)
+            del self.postopek[-(l-1):]
         def zgodovina():
             del self.disk[:]
             self.disk.insert(0, self.zgodovina)
@@ -251,9 +265,9 @@ class Window(Frame):
 
 
         #Izbira radiani oziroma stopinje
-        gumb_kot = ttk.Button(self, text="deg ↔ rad", command = lambda: izbira_kota())
+        gumb_kot = Button(self, text="deg ↔ rad", command = lambda: izbira_kota())
         gumb_kot.place(x=233, y=140)
-        gumb_kot.config(width="11")
+        gumb_kot.config(height="1", width="7")
         label_kot = Label(self, text="deg", bg="#cfcfcf", fg="black")
         label_kot.place(x=285, y = 10)
         self.kot = int()
@@ -280,7 +294,12 @@ class Window(Frame):
 
         def vnesi_postopek(value):
             self.postopek.append(value)
+            postopek_trace()
 
+
+        #Definiramo crto za ulomke
+        crta=Frame(zaslon_okno, width=15, height=1, bg="#cfcfcf")
+        crta.place(x=0, y=0)
 
 
         #Definiraj matematicne funkcije
@@ -299,7 +318,6 @@ class Window(Frame):
             vnesi("/")
             pocisti()
             self.ulomeki=0
-
         def odstevanje():
             self.ulomeki=0
             if self.polinomi>1:
@@ -312,11 +330,8 @@ class Window(Frame):
         def pi():
             vnesi_postopek("π")
             insert_zaslon("3.14159265")
-
-
         self.oklepaji=int()
         self.oklepaji=0
-
         def oklepaj():
             oklepaj_label.config(fg="black")
             self.oklepaji = self.oklepaji + 1
@@ -358,8 +373,8 @@ class Window(Frame):
         self.ulomeki = 0
         self.predulomkom = float()
         def ulomek():
-            zaslon_srenja_velikost()
             trenutno = self.izpis.get("1.0", END)
+            zaslon_srednji()
 
             self.ulomeki = self.ulomeki + 1
 
@@ -369,18 +384,51 @@ class Window(Frame):
                 pocisti()
                 del self.postopek[:]
                 n = Decimal(trenutno)
-                insert_no_count(str((Fraction(n)).limit_denominator()))
+                r = str((Fraction(n)).limit_denominator(100000))
+                a,b = r.split("/", 1)
+                presledek="  "
+                self.izpis.configure(state='normal')
+
+                #Reguliranje porovnave ulomka
+                if len(a)>len(b):
+                    l= len(a)
+                    razdalja=(len(a)-len(b))/2
+                    r1=int(razdalja)
+                    if razdalja-r1 == 0:
+                        b = presledek*r1 + b
+                    else:
+                        b = presledek*r1 + " " + b
+                    print(razdalja)
+                elif len(b)>len(a):
+                    l=len(b)
+                    razdalja=(len(b)-len(a))/2
+                    r1=int(razdalja)
+                    if razdalja-r1 == 0:
+                        a = presledek*r1 + a
+                    else:
+                        a = presledek*r1 + " " + a
+
+                    print(razdalja)
+                else:
+                    l=len(a)
+                self.izpis.insert(END, a)
+                self.izpis.insert(END, "\n" + b )
+                self.izpis.configure(state='disabled')
+
+
+                #Za risanje ulomka ustvarimo risalno povrsino
+                crta.config( bg="#575757", width=l*14)
+                crta.place(x=8, y=30)
+
 
 
             else:
                 r = self.predulomkom
                 pocisti()
-                zaslon_maximize()
                 insert_no_count(r)
-
-
-
-
+                zaslon_maximize()
+                crta.config(bg="#cfcfcf")
+                crta.place(x=0, y=0)
         self.polinom = list()
         self.polinomi = int()
         self.polinomii = int()
@@ -405,10 +453,8 @@ class Window(Frame):
                     #Python2
                     if self.polinomii-self.polinomi == 0:
                         vnesi_postopek("")
-                        #new_window(Window2)
+                        new_window(Window2)
                         polinomje()
-
-
 
                     elif self.polinomii-self.polinomi == 1:
                         vnesi_postopek("x + ")
@@ -436,7 +482,7 @@ class Window(Frame):
                         gumb_polinom.config(text=("P(x"+u"\u2077" + ")").encode('utf-8').strip())
                     elif self.polinomii-self.polinomi == 9:
                         vnesi_postopek(("x"+u"\u2079" + " + ").encode('utf-8').strip())
-                        gumb_polinom.config(text=("P(x"+u"\u2078)").encode('utf-8').strip())
+                        gumb_polinom.config(text=("P(x"+u"\u2078").encode('utf-8').strip())
 
 
                 else:
@@ -476,8 +522,6 @@ class Window(Frame):
             del self.disk[:]
             pocisti()
             postopek_trace()
-
-
         def polinomje():
             pol = (poly1d(self.polinom)).r
 
@@ -485,22 +529,18 @@ class Window(Frame):
             r = '\n'.join(str(x) for x in realni)
             del self.disk[:]
             pocisti()
-            new_window(Window2)
-            try:
-                zaslon_minimize()
-                insert_zaslon("Rešitve (realne):" + "\n" + r)
-                #del self.postopek[:]
-                #self.izpis.config(font=mala_pisava)
-                #insert_postopek("")
-                self.polinomii=0
-                self.polinomi=0
-
-                gumb_polinom.config(text="P(n)")
+            zaslon_minimize()
+            insert_zaslon("Rešitve (realne):" + "\n" + r)
+            #del self.postopek[:]
+            #self.izpis.config(font=mala_pisava)
+            if sys.version_info < (3, 0):
                 insert_postopek("")
-            except NameError:
-                insert_postopek("")
+            else:
+                vnesi_postopek("")
+            self.polinomii=0
+            self.polinomi=0
 
-
+            gumb_polinom.config(text="P(n)")
         def fakulteta(b):
             a = self.izpis.get("1.0", END)
             f = float(a)
@@ -525,17 +565,23 @@ class Window(Frame):
                 insert_zaslon(sci_answer)
             else:
                 insert_zaslon(r)
+            fun()
         def k_koren(b):
             a = self.izpis.get("1.0", END)
-            b = float(a)
+            pocisti()
+            b = Decimal(a)
             c = int(len(a))
             s = str()
             r = math.sqrt(b)
+            del self.postopek[-(c-1):]
+            postopek_trace()
             vnesi_postopek("√")
+            vnesi_postopek(a)
             self.izpis.configure(state="normal")
             pocisti_zaslon()
             zgodovina()
             insert_zaslon('{:.{}f}'.format(r, 5 ))
+            fun()
         def kvadrat(b):
             a = self.izpis.get("1.0", END)
             b = float(a)
@@ -545,104 +591,183 @@ class Window(Frame):
             pocisti_zaslon()
             zgodovina()
             insert_zaslon(r)
+            fun()
         def sin(b):
             a = self.izpis.get("1.0", END)
             b = float(a)
+            l= len(a)
+            pocisti()
+            del self.postopek[-(l-1):]
             if (self.kot % 2 == 0) or (self.kot == 0):
                 if self.fun2i == 1:
                     r = math.degrees(math.asin(b))
-                    vnesi_postopek("°asin")
+                    vnesi_postopek("asin")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi_postopek(")")
+                    fun2()
                 else:
                     r = math.sin(math.radians(b))
-                    vnesi_postopek("°sin")
+                    vnesi_postopek("sin")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi_postopek("°"+")")
             if self.kot == 1:
                 if self.fun2i == 1:
                     r = math.asin(b)
                     vnesi_postopek(" asin")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi_postopek(")")
+                    fun2()
                 else:
                     r = math.sin(b)
                     vnesi_postopek(" sin")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi("rd)")
             self.izpis.configure(state="normal")
             pocisti_zaslon()
             zgodovina()
             insert_zaslon('{:.{}f}'.format(r, 8 ))
+            fun()
         def cos(b):
             a = self.izpis.get("1.0", END)
             b = float(a)
+            l= len(a)
+            pocisti()
+            del self.postopek[-(l-1):]
             if (self.kot % 2 == 0) or (self.kot == 0):
                 if self.fun2i == 1:
                     r = math.degrees(math.acos(b))
-                    vnesi_postopek("°acos")
+                    vnesi_postopek("acos")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi_postopek(")")
+                    fun2()
                 else:
                     r = math.cos(math.radians(b))
-                    vnesi_postopek("°cos")
+                    vnesi_postopek("cos")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi_postopek("°"+")")
             if self.kot == 1:
                 if self.fun2i == 1:
                     r = math.acos(b)
                     vnesi_postopek("acos")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi_postopek(")")
+                    fun2()
                 else:
                     r = math.cos(b)
                     vnesi_postopek("cos")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi("rd)")
             self.izpis.configure(state="normal")
             pocisti_zaslon()
             zgodovina()
             insert_zaslon('{:.{}f}'.format(r, 8 ))
+            fun()
         def tan(b):
             a = self.izpis.get("1.0", END)
             b = float(a)
+            l= len(a)
+            pocisti()
+            del self.postopek[-(l-1):]
             if (self.kot % 2 == 0) or (self.kot == 0):
                 if self.fun2i == 1:
                     r = math.degrees(math.atan(b))
-                    vnesi_postopek("°atan")
+                    vnesi_postopek("atan")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi_postopek(")")
+                    fun2()
                 else:
                     r = math.tan(math.radians(b))
-                    vnesi_postopek("°tan")
+                    vnesi_postopek("tan")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi_postopek("°"+")")
             if self.kot == 1:
                 if self.fun2i == 1:
                     r = math.atan(b)
                     vnesi_postopek("atan")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi_postopek(")")
+                    fun2()
                 else:
                     r = math.tan(b)
                     vnesi_postopek("tan")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi("rd)")
             self.izpis.configure(state="normal")
             pocisti_zaslon()
             zgodovina()
             insert_zaslon('{:.{}f}'.format(r, 8 ))
+            fun()
         def cot(b):
             a = self.izpis.get("1.0", END)
             b = float(a)
+            l= len(a)
+            pocisti()
+            del self.postopek[-(l-1):]
             self.izpis.configure(state="normal")
             if (self.kot % 2 == 0) or (self.kot == 0):
                 if self.fun2i == 1:
                     r = 1/tan(math.degrees(math.asin(b)))
-                    vnesi_postopek("°acot")
+                    vnesi_postopek("acot")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi_postopek(")")
+                    fun2()
                 else:
                     r = 1/tan(math.sin(math.radians(b)))
-                    vnesi_postopek("°cot")
+                    vnesi_postopek("cot")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi_postopek("°"+")")
+
             if self.kot == 1:
                 if self.fun2i == 1:
                     r = 1/tan(math.asin(b))
                     vnesi_postopek("acot")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi_postopek(")")
+                    fun2()
                 else:
                     r = 1/tan(math.sin(b))
                     vnesi_postopek("cot")
+                    vnesi_postopek("(")
+                    vnesi_postopek(float(a))
+                    vnesi("rd)")
             pocisti_zaslon()
             zgodovina()
             insert_zaslon('{:.{}f}'.format(r, 8 ))
+            fun()
         def ln(b):
             if self.fun2i == 1:
                 r = math.e
                 vnesi_postopek("e")
+                fun2()
             else:
                 a = self.izpis.get("1.0", END)
                 b = float(a)
                 c = len(a)
                 r = math.log(b)
+                pocisti()
+                del self.postopek[-(c-1):]
                 vnesi_postopek("ln")
+                vnesi_postopek(b)
             self.izpis.configure(state="normal")
             pocisti_zaslon()
             zgodovina()
             insert_zaslon('{:.{}f}'.format(r, 8 ))
+            fun()
         def xtomem():
             self.mem = self.izpis.get("1.0", END)
         def xplusmem():
@@ -656,11 +781,19 @@ class Window(Frame):
             a = self.izpis.get("1.0", END)
             b = float(a)
             r = 1/b
+            postopek_pobrisi_trenutno()
             self.izpis.configure(state="normal")
-            vnesi_postopek("^-1")
+            if sys.version_info < (3, 0):
+                vnesi_postopek("(")
+                vnesi_postopek(b)
+                vnesi_postopek((")"+u"\u207B" + u"\u00B9").encode('utf-8').strip())
+            else:
+                vnesi_postopek("(")
+                vnesi_postopek(b)
+                vnesi_postopek(")"+"\u207B" + "\u00B9")
             pocisti_zaslon()
             zgodovina()
-            insert_zaslon(r)
+            insert_zaslon('{:.{}f}'.format(r, 5 ))
         def earse():
             self.izpis.configure(state="normal")
             self.izpis.delete("end-2c")
@@ -670,7 +803,11 @@ class Window(Frame):
             a = self.izpis.get("1.0", END)
             b = float(a)
             c = b*(-1)
-            vnesi_postopek("(±)")
+            l=len(a)
+            del self.disk[-(l-1):]
+            postopek_pobrisi_trenutno()
+            vnesi_postopek("±")
+            vnesi_postopek(b)
             pocisti_zaslon()
             insert_zaslon(c)
         def enax(b):
@@ -696,7 +833,9 @@ class Window(Frame):
                 c = int(b)
                 d = int(self.xnay)
                 r = d**c
+
                 xnay_label.config(fg="#cfcfcf")
+                postopek_pobrisi_trenutno()
                 pocisti()
                 zgodovina()
                 self.xnay = ""
@@ -709,9 +848,63 @@ class Window(Frame):
                     insert_zaslon(sci_answer)
                 else:
                     insert_zaslon(r)
+
+                #Vnesi v postopek
+                vnesi_postopek(d)
+                if sys.version_info < (3, 0):
+                    #Python2
+
+                    if c == 1:
+                        vnesi_postopek((u"\u00B9").encode('utf-8').strip())
+                    elif c == 2:
+                        vnesi_postopek((u"\u00B2").encode('utf-8').strip())
+                    elif c == 3:
+                        vnesi_postopek((u"\u00B3").encode('utf-8').strip())
+                    elif c == 4:
+                        vnesi_postopek((u"\u2074").encode('utf-8').strip())
+                    elif c == 5:
+                        vnesi_postopek((u"\u2075").encode('utf-8').strip())
+                    elif c == 6:
+                        vnesi_postopek((u"\u2076").encode('utf-8').strip())
+                    elif c == 7:
+                        vnesi_postopek((u"\u2077").encode('utf-8').strip())
+                    elif c== 8:
+                        vnesi_postopek((u"\u2078").encode('utf-8').strip())
+                    elif c== 9:
+                        vnesi_postopek((u"\u2079").encode('utf-8').strip())
+                    else:
+                        vnesi_postopek("ˆ")
+                        vnesi_postopek(float(c))
+
+
+
+                else:
+                    #Python3
+                    if c == 1:
+                        vnesi_postopek("\u00B9")
+                    elif c == 2:
+                        vnesi_postopek("\u00B2")
+                    elif c == 3:
+                        vnesi_postopek("\u00B3")
+                    elif c == 4:
+                        vnesi_postopek("\u2074")
+                    elif c == 5:
+                        vnesi_postopek("\u2075")
+                    elif c == 6:
+                        vnesi_postopek("\u2076")
+                    elif c == 7:
+                        vnesi_postopek("\u2077")
+                    elif c== 8:
+                        vnesi_postopek("\u2078")
+                    elif c== 9:
+                        vnesi_postopek("\u2079")
+                    else:
+                        vnesi_postopek("ˆ")
+                        vnesi_postopek(float(c))
+                fun()
             if self.xnayi == 1:
                 self.xnay = self.izpis.get("1.0", END)
-                vnesi_postopek("")
+                postopek_pobrisi_trenutno()
                 pocisti()
         self.vnr=""
         self.vnri = int()
@@ -739,6 +932,7 @@ class Window(Frame):
                     insert_zaslon(sci_answer)
                 else:
                     insert_zaslon(r)
+                fun()
             if self.vnri == 1:
                 self.vnr = self.izpis.get("1.0", END)
                 vnesi_postopek("V")
@@ -769,6 +963,7 @@ class Window(Frame):
                     insert_zaslon(sci_answer)
                 else:
                     insert_zaslon(r)
+                fun()
             if self.pvnri == 1:
                 self.pvnr = self.izpis.get("1.0", END)
                 vnesi_postopek("pV")
@@ -799,6 +994,7 @@ class Window(Frame):
                     insert_zaslon(sci_answer)
                 else:
                     insert_zaslon(r)
+                fun()
             if self.cnri == 1:
                 self.cnr = self.izpis.get("1.0", END)
                 vnesi_postopek("C")
@@ -829,6 +1025,7 @@ class Window(Frame):
                     insert_zaslon(sci_answer)
                 else:
                     insert_zaslon(r)
+                fun()
             if self.pcnri == 1:
                 self.pcnr = self.izpis.get("1.0", END)
                 vnesi_postopek("pC")
@@ -851,34 +1048,151 @@ class Window(Frame):
                 self.xky = ""
                 self.xkyi = 0
                 zgodovina()
+                postopek_pobrisi_trenutno()
                 self.zgodovina = ""
+                if sys.version_info < (3, 0):
+                    #Python2
+
+                    if d == 1:
+                        vnesi_postopek((u"\u00B9").encode('utf-8').strip())
+                    elif d == 2:
+                        vnesi_postopek((u"\u00B2").encode('utf-8').strip())
+                    elif d == 3:
+                        vnesi_postopek((u"\u00B3").encode('utf-8').strip())
+                    elif d == 4:
+                        vnesi_postopek((u"\u2074").encode('utf-8').strip())
+                    elif d == 5:
+                        vnesi_postopek((u"\u2075").encode('utf-8').strip())
+                    elif d == 6:
+                        vnesi_postopek((u"\u2076").encode('utf-8').strip())
+                    elif d == 7:
+                        vnesi_postopek((u"\u2077").encode('utf-8').strip())
+                    elif d== 8:
+                        vnesi_postopek((u"\u2078").encode('utf-8').strip())
+                    elif d== 9:
+                        vnesi_postopek((u"\u2079").encode('utf-8').strip())
+                    else:
+                        vnesi_postopek(d)
+
+
+
+
+                else:
+                    #Python3
+                    if d == 1:
+                        vnesi_postopek("\u00B9")
+                    elif d == 2:
+                        vnesi_postopek("\u00B2")
+                    elif d == 3:
+                        vnesi_postopek("\u00B3")
+                    elif d == 4:
+                        vnesi_postopek("\u2074")
+                    elif d == 5:
+                        vnesi_postopek("\u2075")
+                    elif d == 6:
+                        vnesi_postopek("\u2076")
+                    elif d == 7:
+                        vnesi_postopek("\u2077")
+                    elif d== 8:
+                        vnesi_postopek("\u2078")
+                    elif d== 9:
+                        vnesi_postopek("\u2079")
+                    else:
+                        vnesi_postopek(d)
+
+                vnesi_postopek("√")
+                vnesi_postopek(float(c))
+                fun()
                 insert_zaslon('{:.{}f}'.format(r, 5 ))
             if self.xkyi == 1:
                 self.xky = self.izpis.get("1.0", END)
-                vnesi_postopek("√")
+                pocisti()
+                postopek_pobrisi_trenutno()
+
         self.logxy=""
         self.logxyi = int()
         self.logxyi = 0
         def logxy():
-            self.logxyi = self.logxyi + 1
-            logxy_label.config(fg="black")
-            fundis()
-            gumb_log.configure(state="normal")
-            if self.logxyi == 2:
-                b = self.izpis.get("1.0", END)
-                c = int(b)
-                d = int(self.logxy)
-                r = math.log(d, c)
-                logxy_label.config(fg="#cfcfcf")
-                pocisti()
-                zgodovina()
-                self.logxy = ""
-                self.logxyi = 0
-                insert_zaslon('{:.{}f}'.format(r, 8 ))
-            if self.logxyi == 1:
-                self.logxy = self.izpis.get("1.0", END)
-                vnesi_postopek("log")
-                pocisti()
+            if self.fun2i % 2 == 1:
+                dms()
+                fun2()
+            else:
+                self.logxyi = self.logxyi + 1
+                logxy_label.config(fg="black")
+                fundis()
+                gumb_log.configure(state="normal")
+                if self.logxyi == 2:
+                    b = self.izpis.get("1.0", END)
+                    c = int(b)
+                    d = int(self.logxy)
+                    r = math.log(d, c)
+                    logxy_label.config(fg="#cfcfcf")
+                    zgodovina()
+
+
+                    postopek_pobrisi_trenutno()
+                    insert_zaslon('{:.{}f}'.format(r, 8 ))
+                    vnesi_postopek("log")
+                    if sys.version_info < (3, 0):
+                        #Python2
+
+                        if c == 1:
+                            vnesi_postopek((u"\u2081").encode('utf-8').strip())
+                        elif c == 2:
+                            vnesi_postopek((u"\u2082").encode('utf-8').strip())
+                        elif c == 3:
+                            vnesi_postopek((u"\u2083").encode('utf-8').strip())
+                        elif c == 4:
+                            vnesi_postopek((u"\u2084").encode('utf-8').strip())
+                        elif c == 5:
+                            vnesi_postopek((u"\u2085").encode('utf-8').strip())
+                        elif c == 6:
+                            vnesi_postopek((u"\u2086").encode('utf-8').strip())
+                        elif c == 7:
+                            vnesi_postopek((u"\u2087").encode('utf-8').strip())
+                        elif c== 8:
+                            vnesi_postopek((u"\u2088").encode('utf-8').strip())
+                        elif c== 9:
+                            vnesi_postopek((u"\u2089").encode('utf-8').strip())
+                        else:
+                            vnesi_postopek("(")
+                            vnesi_postopek(c)
+                            vnesi_postopek(")")
+
+                    else:
+                        #Python3
+                        if c == 1:
+                            vnesi_postopek("\u2081")
+                        elif c == 2:
+                            vnesi_postopek("\u2082")
+                        elif c == 3:
+                            vnesi_postopek("\u2083")
+                        elif c == 4:
+                            vnesi_postopek("\u2084")
+                        elif c == 5:
+                            vnesi_postopek("\u2085")
+                        elif c == 6:
+                            vnesi_postopek("\u2086")
+                        elif c == 7:
+                            vnesi_postopek("\u2087")
+                        elif c== 8:
+                            vnesi_postopek("\u2088")
+                        elif c== 9:
+                            vnesi_postopek("\u2089")
+                        else:
+                            vnesi_postopek("(")
+                            vnesi_postopek(c)
+                            vnesi_postopek(")")
+
+                    vnesi_postopek(d)
+                    self.logxy = ""
+                    self.logxyi = 0
+                    fun()
+                if self.logxyi == 1:
+                    self.logxy = self.izpis.get("1.0", END)
+                    postopek_pobrisi_trenutno()
+                    pocisti()
+
         self.exp=""
         self.expi = int()
         self.expi = 0
@@ -899,6 +1213,7 @@ class Window(Frame):
                 self.expi = ""
                 self.expi = 0
                 insert_zaslon(ans)
+                fun()
             if self.expi == 1:
                 self.exp = self.izpis.get("1.0", END)
                 vnesi_postopek("×10^")
@@ -919,6 +1234,17 @@ class Window(Frame):
             zgodovina()
             vnesi_postopek("(10^)")
             insert_zaslon(r)
+        def dms():
+            kot = self.izpis.get("1.0",END)
+            #Razcleni kot na posmezne dele
+            stevilo, decimalke = kot.split(".",1)
+            d=int(float(kot))
+            m=int((float(kot)-d)*60)
+            s=int((((float(kot)-d-(m/60))*3600))*100)
+
+            pocisti()
+            zaslon_srednji()
+            insert_no_count(str(d)+"°"+str(m)+"' "+str(s)+'"')
 
         #Pretvrjanje v sisteme
         def fhex():
@@ -949,6 +1275,7 @@ class Window(Frame):
             pocisti()
             insert_zaslon(self.bin)
             del self.disk[:]
+
         #Definiraj spremijane zapisa rezultata
         self.fe = 0
         def FE():
@@ -1322,14 +1649,14 @@ class Window(Frame):
                 print(self.disk)
                 n = int()
                 n = 10
-                if dolzina > n and (float(answer) >= 1000 or float(answer) <= 0.00000001):
+                if dolzina > n and ((float(answer) >= 1000 or float(answer) <= 0.00000001)):
                     ans = float(answer)
                     sci_answer = '%.3E' % ans
                     pocisti_zaslon()
                     insert_no_count(sci_answer, newline=True)
                     self.izpis.configure(state="disabled")
                     self.koncni_rezultat=sci_answer
-                elif dolzina > n and (float(answer) < 1000 or float(answer) > 0.00000001):
+                elif dolzina > n and ((float(answer) < 1000 or float(answer) > 0.00000001)):
                     pocisti_zaslon()
                     ans = float(answer)
                     insert_no_count('{:.{}f}'.format(ans, 8 ))
@@ -1358,8 +1685,6 @@ class Window(Frame):
                 pocisti_vse()
                 insert_zaslon("Err")
                 del self.disk[:]
-
-
         def rezultat_int():
             return int(eval(self.disk))
         def pocisti_zaslon():
@@ -1369,7 +1694,6 @@ class Window(Frame):
             self.izpis.configure(state='normal')
             self.izpis.delete('1.0', END)
             self.izpis.configure(state="disabled")
-
         def pocisti():
             #to clear screen
             #set equation to empty before deleting screen
@@ -1387,7 +1711,6 @@ class Window(Frame):
 
             #Sprotno prikazovanje postopka
             postopek_trace()
-
         def postopek_trace():
             #Sprotno prikazovanje postopka
 
@@ -1398,7 +1721,6 @@ class Window(Frame):
                     self.postopek[i] = "÷"
             self.postopek_trace = ("".join(str(x) for x in self.postopek))
             self.zaslon_postopek.configure(text=self.postopek_trace)
-
         def pobrisi_eno_mesto():
             izpis = self.izpis.get("1.0", END)
             l = len(izpis) - 1
@@ -1409,7 +1731,6 @@ class Window(Frame):
                 del self.disk[-1]
                 del self.postopek[-1]
                 postopek_trace()
-
         #Brisanje vsega - tukaj zaradi inita
         def pocisti_vse():
 
@@ -1422,8 +1743,12 @@ class Window(Frame):
             self.izpis.configure(state='normal')
             self.izpis.delete('1.0', END)
 
+            crta.config(bg="#cfcfcf")
+            crta.place(x=0, y=0)
+
             #Ponastavi stringe
             self.racun=""
+            self.prej=""
             self.koncni_rezultat =""
             self.sprotno=""
             self.postopek_trace=""
