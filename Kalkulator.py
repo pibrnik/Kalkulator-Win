@@ -263,9 +263,9 @@ class Window(Frame):
 
 
         #Izbira radiani oziroma stopinje
-        gumb_kot = Button(self, text="deg ↔ rad", command = lambda: izbira_kota())
+        gumb_kot = ttk.Button(self, text="deg ↔ rad", command = lambda: izbira_kota())
         gumb_kot.place(x=233, y=140)
-        gumb_kot.config(height="1", width="7")
+        gumb_kot.config(width=11)
         label_kot = Label(self, text="deg", bg="#cfcfcf", fg="black")
         label_kot.place(x=285, y = 10)
         self.kot = int()
