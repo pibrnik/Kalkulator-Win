@@ -69,8 +69,6 @@ class Window(Frame):
         self.disk = list()
         self.koncni_rezultat = ""
         self.sprotno = ""
-        self._kratek_pritisk = None
-        self._dolg_pritisk = None
 
         #Zaslon samo za postopek
         self.postopek_trace = ""
