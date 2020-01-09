@@ -57,10 +57,10 @@ class Window(Frame):
 
         #Zaslon
         velika_pisava = ('Arial',40)
-        mala_pisava = ("Arial", 27)
+        mala_pisava = ("Arial", 19)
         najmanjsa_pisava = ("Arial", 8)
         self.izpis = Text(zaslon_okno, state='disabled',height = 2, width = 12, padx=8, background="#cfcfcf", foreground="#575757")
-        self.izpis.place(x= -4, y=-4)
+        self.izpis.place(x= -4, y=-1)
         self.izpis.config(font=velika_pisava, state="disabled")
 
 
@@ -73,7 +73,7 @@ class Window(Frame):
         #Zaslon samo za postopek
         self.postopek_trace = ""
         self.zaslon_postopek = Label(zaslon_okno, text=self.postopek_trace, background="#cfcfcf", foreground="#575757", anchor=W)
-        self.zaslon_postopek.place(x=8, y=52)
+        self.zaslon_postopek.place(x=8, y=54)
         self.zaslon_postopek.configure(width=80)
 
 
@@ -84,7 +84,7 @@ class Window(Frame):
         def zaslon_minimize():
             self.izpis.config(height=9, width=55, font=najmanjsa_pisava)
         def zaslon_srednji():
-            self.izpis.config(height=3, width=30, font=mala_pisava)
+            self.izpis.config(height=4, width=30, font=mala_pisava)
         def zaslon_maximize():
             self.izpis.config(height=2, width=12, font=velika_pisava)
 
@@ -131,6 +131,7 @@ class Window(Frame):
             gumb_enako.configure(state="normal")
         def fundis():
             #Onemogoci funkcijske tipke med aktivno funckcio
+            #fun_button.configure(text="Omogoči funkcije")
             gumb_fakulteta.configure(state="disabled")
             gumb_koren.configure(state="disabled")
             gumb_kvadrat.configure(state="disabled")
@@ -416,7 +417,7 @@ class Window(Frame):
 
                 #Za risanje ulomka ustvarimo risalno povrsino
                 crta.config( bg="#575757", width=l*14)
-                crta.place(x=8, y=30)
+                crta.place(x=5, y=29)
 
 
 
@@ -527,14 +528,18 @@ class Window(Frame):
             r = '\n'.join(str(x) for x in realni)
             del self.disk[:]
             pocisti()
-            zaslon_minimize()
-            insert_zaslon("Rešitve (realne):" + "\n" + r)
-            #del self.postopek[:]
-            #self.izpis.config(font=mala_pisava)
-            if sys.version_info < (3, 0):
-                insert_postopek("")
-            else:
-                vnesi_postopek("")
+            new_window(Window2)
+            try:
+                zaslon_minimize()
+                insert_zaslon("Rešitve (realne):" + "\n" + r)
+                #del self.postopek[:]
+                #self.izpis.config(font=mala_pisava)
+                #insert_postopek("")
+
+                gumb_polinom.config(text="P(n)")
+                insert("")
+            except NameError:
+                insert("")
             self.polinomii=0
             self.polinomi=0
 
@@ -574,7 +579,7 @@ class Window(Frame):
             del self.postopek[-(c-1):]
             postopek_trace()
             vnesi_postopek("√")
-            vnesi_postopek(a)
+            vnesi_postopek(float(a))
             self.izpis.configure(state="normal")
             pocisti_zaslon()
             zgodovina()
@@ -1738,6 +1743,7 @@ class Window(Frame):
             del self.postopek[:]
             del self.polinom [:]
             resetfun()
+            fundis()
             self.izpis.configure(state='normal')
             self.izpis.delete('1.0', END)
 
@@ -1753,6 +1759,7 @@ class Window(Frame):
 
             #Ponsatavi gumbr
             gumb_polinom.config(text="P(n)")
+            fun_button.config(text="Omogoči funkcije")
 
             #Ponastavi stevce
             self.polinomii=0
@@ -1849,17 +1856,17 @@ class Window2(Frame):
 
         slider1 = ttk.Scale(self, from_=(-200), to=0)
         slider1.place(x=0, y=625)
-        slider1.config(value=-10, length=300)
+        slider1.config(value=-5, length=300)
         slider2 = ttk.Scale(self, from_=0, to=200)
         slider2.place(x=300, y=625)
-        slider2.config(value=10, length=300)
+        slider2.config(value=5, length=300)
 
 
 
 
         fig = Figure(figsize=(6,6))
         a = fig.add_subplot(111)
-        x = np.linspace(-10, 10, 1000)
+        x = np.linspace(-5, 5, 1000)
         coeffs = polinom[::-1]
         print(polinom)
         a.plot(x, PolyCoefficients(x, coeffs), color="green")
@@ -1892,6 +1899,7 @@ root = Tk()
 root.geometry("330x520")
 root.attributes("-alpha", 0.97)
 root.resizable(0,0)
+
 
 
 app = Window(root)
