@@ -476,7 +476,6 @@ class Window(Frame):
                     #Python2
                     if self.polinomii-self.polinomi == 0:
                         vnesi_postopek("")
-                        new_window(Window2)
                         polinomje()
 
                     elif self.polinomii-self.polinomi == 1:
@@ -512,7 +511,6 @@ class Window(Frame):
                     #Python3
                     if self.polinomii-self.polinomi == 0:
                         polinomje()
-                        new_window(Window2)
                     elif self.polinomii-self.polinomi == 1:
                         vnesi_postopek("x + ")
                         gumb_polinom.config(text="n")
