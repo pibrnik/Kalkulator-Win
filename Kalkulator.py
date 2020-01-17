@@ -2168,6 +2168,8 @@ class Window(Frame):
 
             del self.disk[:]
             del self.postopek[:]
+            global polinom
+            del polinom[:]
             del self.polinom [:]
 
             # Funkcije
