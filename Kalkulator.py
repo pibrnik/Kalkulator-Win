@@ -2339,7 +2339,7 @@ root.geometry("330x520+550+200")
 root.attributes("-alpha", 0.99)
 root.configure(background="white")
 root.resizable(0,0)
-root.iconbitmap("C:\Users\Marko Zupan\OneDrive\Namizje\Kalkulator App\AppIcon.ico")
+root.iconbitmap(r"C:\Users\Marko Zupan\OneDrive\Namizje\Kalkulator App\AppIcon.ico")
 
 
 app = Window(root)
