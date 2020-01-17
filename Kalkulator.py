@@ -94,7 +94,7 @@ class Window(Frame):
         limita.place(x=-80, y=300)
 
         #Definiranje opozorila za rejanje Funkcije
-        opozorilo_funkcija=Label(self, width=47 ,height=1, background="white", foreground="white")
+        opozorilo_funkcija=Label(self, width=47 ,height=1, background="#f0f0f0", foreground="white")
         opozorilo_funkcija.place(x=0, y=500)
 
 
@@ -2176,7 +2176,7 @@ class Window(Frame):
             fun_button.configure(state="normal")
             fun2_button.configure(state="disabled")
             self.editing_x=False
-            opozorilo_funkcija.config(background="white")
+            opozorilo_funkcija.config(background="#f0f0f0")
             self.limitai=0
 
             self.izpis.configure(state='normal')
@@ -2339,7 +2339,7 @@ root.geometry("330x520+550+200")
 root.attributes("-alpha", 0.99)
 root.configure(background="white")
 root.resizable(0,0)
-
+root.iconbitmap("C:\Users\Marko Zupan\OneDrive\Namizje\Kalkulator App\AppIcon.ico")
 
 
 app = Window(root)
