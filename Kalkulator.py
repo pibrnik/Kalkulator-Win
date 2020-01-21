@@ -6,6 +6,7 @@ import matplotlib
 matplotlib.use("TkAgg")
 
 import sys
+import os
 sys.setrecursionlimit(1000000)
 if sys.version_info < (3, 0):
     #Python2
@@ -2246,7 +2247,7 @@ class Window2(Frame):
 
         #Definiranje naslova okna
         self.master.title("Graf")
-        self.master.geometry("600x650+1100+400")
+        self.master.geometry("600x650+800+200")
         self.master.attributes("-alpha", 0.97)
         self.master.resizable(0,0)
 
@@ -2335,13 +2336,26 @@ class Window2(Frame):
 
 root = Tk()
 
+#Zaradi ikone pri ustvarjanju EXE moramo sliki dodeliti relativni naslov
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+Logo = resource_path("AppIcon.ico")
+
 
 #Velikost okna
 root.geometry("330x520+550+200")
 root.attributes("-alpha", 0.99)
 root.configure(background="white")
 root.resizable(0,0)
-root.iconbitmap(r"C:\Users\Marko Zupan\OneDrive\Namizje\Kalkulator App\AppIcon.ico")
+root.iconbitmap(Logo)
 
 
 app = Window(root)
